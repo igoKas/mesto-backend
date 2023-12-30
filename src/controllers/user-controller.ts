@@ -45,8 +45,8 @@ class UserController {
       if (!errors.isEmpty()) {
         throw ApiError.BadRequest('Переданы некорректные данные при обновлении профиля', errors.array());
       }
-      const { name, about, userId } = req.body;
-      const user = await UserModel.findByIdAndUpdate(userId, { name, about }, { new: true });
+      const { name, about } = req.body;
+      const user = await UserModel.findByIdAndUpdate(req.user._id, { name, about }, { new: true });
       if (!user) {
         throw ApiError.NotFound('Пользователь с указанным _id не найден');
       }
@@ -62,8 +62,8 @@ class UserController {
       if (!errors.isEmpty()) {
         throw ApiError.BadRequest('Переданы некорректные данные при обновлении аватара', errors.array());
       }
-      const { avatar, userId } = req.body;
-      const user = await UserModel.findByIdAndUpdate(userId, { avatar }, { new: true });
+      const { avatar } = req.body;
+      const user = await UserModel.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
       if (!user) {
         throw ApiError.NotFound('Пользователь с указанным _id не найден');
       }

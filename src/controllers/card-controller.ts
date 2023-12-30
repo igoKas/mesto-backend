@@ -19,8 +19,8 @@ class CardController {
       if (!errors.isEmpty()) {
         throw ApiError.BadRequest('Переданы некорректные данные при создании карточки', errors.array());
       }
-      const { name, link, userId } = req.body;
-      const card = await CardModel.create({ name, link, owner: userId });
+      const { name, link } = req.body;
+      const card = await CardModel.create({ name, link, owner: req.user._id });
       return res.json(card);
     } catch (error) {
       next(error);
@@ -43,7 +43,7 @@ class CardController {
     try {
       const card = await CardModel.findByIdAndUpdate(
         req.params.cardId,
-        { $addToSet: { likes: req.body.userId } },
+        { $addToSet: { likes: req.user._id } },
         { new: true },
       );
       if (!card) {
@@ -59,7 +59,7 @@ class CardController {
     try {
       const card = await CardModel.findByIdAndUpdate(
         req.params.cardId,
-        { $pull: { likes: req.body.userId } },
+        { $pull: { likes: req.user._id } },
         { new: true },
       );
       if (!card) {

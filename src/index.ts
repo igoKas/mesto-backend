@@ -11,7 +11,9 @@ const app = express();
 
 app.use(express.json());
 app.use((req: Request, res: Response, next: NextFunction) => {
-  req.body.userId = '658ec7854509afb352a6a081';
+  req.user = {
+    _id: '658ec7854509afb352a6a081',
+  };
 
   next();
 });
