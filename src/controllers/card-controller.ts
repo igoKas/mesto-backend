@@ -29,10 +29,14 @@ class CardController {
 
   async deleteCard(req: Request, res: Response, next: NextFunction) {
     try {
-      const card = await CardModel.findByIdAndDelete(req.params.cardId);
+      const card = await CardModel.findById(req.params.cardId);
       if (!card) {
         throw ApiError.NotFound('Карточка с указанным _id не найдена');
       }
+      if (card.owner.toString() !== req.user._id) {
+        throw ApiError.Forbidden('Попытка удалить чужую карточку');
+      }
+      await CardModel.findByIdAndDelete(req.params.cardId);
       return res.json(card);
     } catch (error) {
       next(error);

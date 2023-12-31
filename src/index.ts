@@ -1,24 +1,25 @@
 import dotenv from 'dotenv';
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 import errorMiddleware from './middlewares/error-middleware';
 import userRouter from './routes/user-routes';
 import cardRouter from './routes/card-routes';
+import authRouter from './routes/auth-routes';
+import authMiddleware from './middlewares/auth-middleware';
+import { requestLogger, errorLogger } from './middlewares/logger';
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+app.use(cookieParser());
 app.use(express.json());
-app.use((req: Request, res: Response, next: NextFunction) => {
-  req.user = {
-    _id: '658ec7854509afb352a6a081',
-  };
-
-  next();
-});
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use(requestLogger);
+app.use('/', authRouter);
+app.use('/users', authMiddleware, userRouter);
+app.use('/cards', authMiddleware, cardRouter);
+app.use(errorLogger);
 app.use(errorMiddleware);
 
 const start = async () => {
