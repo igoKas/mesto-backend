@@ -20,6 +20,10 @@ class UserController {
 
   async getUser(req: Request, res: Response, next: NextFunction) {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Передан некорректный id', errors.array());
+      }
       const user = await UserModel.findById(req.params.userId);
       if (!user) {
         throw ApiError.NotFound('Пользователь по указанному _id не найден');
@@ -48,10 +52,11 @@ class UserController {
       if (!errors.isEmpty()) {
         throw ApiError.BadRequest('Переданы некорректные данные при регистрации', errors.array());
       }
-      const { email, password, name, about, avatar } = req.body;
-      const hashPassword = await bcrypt.hash(password, 10);
+      const { email, password: reqPassword, name, about, avatar } = req.body;
+      const hashPassword = await bcrypt.hash(reqPassword, 10);
       const user = await UserModel.create({ email, password: hashPassword, name, about, avatar });
-      return res.json(user);
+      const { password, ...userForRes } = user.toObject();
+      return res.status(201).json(userForRes);
     } catch (error: any) {
       if (error.code === 11000) {
         next(ApiError.Conflict('При регистрации указан email, который уже существует на сервере'));
