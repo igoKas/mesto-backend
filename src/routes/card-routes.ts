@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 import cardController from '../controllers/card-controller';
 
 const router = Router();
@@ -11,8 +11,8 @@ router.post(
   body('link').isURL(),
   cardController.createCard,
 );
-router.delete('/:cardId', cardController.deleteCard);
-router.put('/:cardId/likes', cardController.likeCard);
-router.delete('/:cardId/likes', cardController.dislikeCard);
+router.delete('/:cardId', param('cardId').isMongoId(), cardController.deleteCard);
+router.put('/:cardId/likes', param('cardId').isMongoId(), cardController.likeCard);
+router.delete('/:cardId/likes', param('cardId').isMongoId(), cardController.dislikeCard);
 
 export default router;
